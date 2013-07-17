@@ -31,9 +31,10 @@ class TowerDefence(QtGui.QMainWindow):
  				#print pos.x(), pos.y()
  				#self.edit.setText('x: %d, y: %d' % (pos.x(), pos.y()))
  				self.mainBoard.updateMouse(2, pos.x(), pos.y())
- 				self.mainBoard.isMouseIn = True;
+ 				self.mainBoard.isMouseIn = True
 			else:
-				self.mainBoard.isMouseIn = False;
+				self.mainBoard.isMouseIn = False
+				self.mainBoard.repaint()
 		return QtGui.QMainWindow.eventFilter(self, source, event)
 	
 
@@ -47,7 +48,8 @@ class gameBoard(QtGui.QFrame):
 	mouse_size = 1;
 
 	isMouseIn = False;
-	boardOccupancy = []
+	towerOccupancy = []
+	nonOccupiable = []
 
 	def start(self):
 		self.setStyleSheet("QWidget { background: #A9F5D0 }") 
@@ -58,8 +60,9 @@ class gameBoard(QtGui.QFrame):
 		qp.begin(self)
 		self.drawGrid(qp)
 		self.drawEnemies(qp)
-		self.drawOutline(qp)
 		
+		self.drawTowers(qp)
+		self.drawOutline(qp)
 		qp.end()
 
 	def drawGrid(self, qp):
@@ -76,26 +79,79 @@ class gameBoard(QtGui.QFrame):
 	def drawPath(self, qp):
 		pass
 
+	def drawTowers(self, qp):
+		qp.setPen(QtCore.Qt.NoPen)
+		qp.setBrush(QtGui.QColor(255, 80, 0, 255))
+		for i in self.towerOccupancy:
+			qp.drawRect(i[0], i[1], i[2], i[2])
+
 	def pause(self):
 		print "paused"
 
-	def drawOutline(self, qp):
-		qp.setPen(QtCore.Qt.NoPen)
-		qp.setBrush(QtGui.QColor(255, 80, 0, 155))
-		qp.drawRect(self.myround(self.mouse_x), self.myround(self.mouse_y), self.mouse_size*20, self.mouse_size*20)
+	def get_x(self):
+		if self.mouse_x > self.boardWidth-40 and self.mouse_size == 2:
+			return self.boardWidth-40
+		return self.mouse_x
 
+	def get_y(self):
+		if self.mouse_y > self.boardHeight-40 and self.mouse_size == 2:
+			return self.boardHeight-40
+		return self.mouse_y
+
+	#draws outline on mouse hover 
+	def drawOutline(self, qp):
+		if self.isMouseIn:
+			qp.setPen(QtCore.Qt.NoPen)
+			qp.setBrush(QtGui.QColor(255, 80, 0, 155))
+			qp.drawRect(self.myround(self.get_x()), self.myround(self.get_y()), self.mouse_size*20, self.mouse_size*20)
+		#checks to see if the mouse is over occupied grid.
+		if not self.checkPlacement():
+			qp.setPen(QtCore.Qt.NoPen)
+			qp.setBrush(QtGui.QColor(0, 0, 0, 155))
+			qp.drawRect(self.myround(self.get_x()), self.myround(self.get_y()), self.mouse_size*20, self.mouse_size*20)
+
+	#rounds to base, for positioning of towers and outlines
 	def myround(self, x, base=20):
-		#return int(base * round(float(x)/base)) 
 		return x - (x%base)
 
+	#called by controller: updates the value of mouse positions
 	def updateMouse(self, size, x, y):
 		self.mouse_size = size
 		self.mouse_y = y
 		self.mouse_x = x
-		print x, y
+		#print x, y
 		self.repaint()
+
+	#returns true if current mouse pointer/size is able to be placed.
+	def checkPlacement(self):
+		if self.mouse_size==1:
+			if [self.myround(self.get_x()),self.myround(self.get_y())] in self.nonOccupiable:
+				return False
+		elif self.mouse_size==2:
+			if [self.myround(self.get_x()),self.myround(self.get_y())] in self.nonOccupiable or \
+				[self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize] in self.nonOccupiable or \
+				[self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())] in self.nonOccupiable or \
+				[self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize] in self.nonOccupiable:
+				return False
+		return True
+
+	#called by controller: adds tower to array of towers when mouse clicked.
 	def updateTowers(self):
-		print self.isMouseIn
+		#print self.isMouseIn
+		if self.checkPlacement():
+			if self.isMouseIn:
+				self.towerOccupancy.append([self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize])
+			if self.mouse_size == 1:
+				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
+			elif self.mouse_size == 2:
+				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
+				self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
+				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
+				self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
+		else:
+			print "Unplaceable Tower!"
+		#print self.nonOccupiable
+		self.repaint()
 
 class scoreBoard(QtGui.QFrame):
 	'''
