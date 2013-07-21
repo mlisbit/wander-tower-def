@@ -9,20 +9,33 @@ class TowerDefence(QtGui.QMainWindow):
 
 		self.setFixedSize(800,520)
 		self.setWindowTitle('Dat Tower Defence!')
-		self.mainBoard = gameBoard(self)
+		TowerDefence.mainBoard = gameBoard(self)
 		self.secondaryBoard = scoreBoard(self)
 
 		self.setCentralWidget(self.mainBoard)
 		
-		self.mainBoard.start()
+		TowerDefence.mainBoard.start()
 		self.secondaryBoard.start()
 
-	def keyPressEvent(self, event):
-		if e.key() == QtCore.Qt.Key_P:
-			self.mainBoard.pause()
+		TowerDefence.mainBoard.mouse_size = 2
 
+		self.timer = QtCore.QBasicTimer()
+		self.timer.start(200, self)
+		self.update()
+
+	#game thread
+	def timerEvent(self, event):
+		if event.timerId() == self.timer.timerId():
+			self.repaint()
+		else:
+			QtGui.QFrame.timerEvent(self, event)
+
+	def keyPressEvent(self, event):
+		if event.key() == QtCore.Qt.Key_P:
+			self.mainBoard.pause()
+	
 	def mousePressEvent(self, event):
-		self.mainBoard.updateTowers()
+		self.mainBoard.placeTowers()
 
 	def eventFilter(self, source, event):
 		if event.type() == QtCore.QEvent.MouseMove:
@@ -30,36 +43,54 @@ class TowerDefence(QtGui.QMainWindow):
  				pos = event.pos()
  				#print pos.x(), pos.y()
  				#self.edit.setText('x: %d, y: %d' % (pos.x(), pos.y()))
- 				self.mainBoard.updateMouse(2, pos.x(), pos.y())
+ 				self.mainBoard.updateMouse(pos.x(), pos.y())
  				self.mainBoard.isMouseIn = True
 			else:
 				self.mainBoard.isMouseIn = False
 				self.mainBoard.repaint()
 		return QtGui.QMainWindow.eventFilter(self, source, event)
 
-	
+#tower objects 
+class Tower(object):
+	position_x = 0
+	position_y = 0
+	size = 0
+	shotrange = 50
+
+	def __init__(self, x, y, s): 
+		self.position_x = x
+		self.position_y = y
+		self.size = s
+
+class Enemy(object):
+	health = 100
+
 
 class gameBoard(QtGui.QFrame):
 	boardWidth = 600
 	boardHeight = 520
 	blockSize = 20
 
-	score = 0
-	mouse_x = -1
-	mouse_y = -1
-	mouse_size = 1
-	gameTime = 0
+	def __init__(self, parent):
+		QtGui.QFrame.__init__(self, parent)
+		
+		self.mouse_size = 2
+		self.score = 0
+		self.mouse_x = -1
+		self.mouse_y = -1
+	
+		self.gameTime = 0
 
-	enemyPath = [[0,2], [1,2], [2,2], [3,2], [4,2], [4,3], [4,4], [4,5], [4,6], [4,7], [4,8], [4,9], [4,10]]
+		self.enemyPath = [[0,2], [1,2], [2,2], [3,2], [4,2], [4,3], [4,4], [4,5], [4,6], [4,7], [4,8], [4,9], [4,10]]
 
-	isMouseIn = False;
-	towerOccupancy = []
-	nonOccupiable = []
+		self.isMouseIn = False;
+		self.towerOccupancy = []
+		self.nonOccupiable = []
 
 	def start(self):
 		self.setStyleSheet("QWidget { background: #A9F5D0 }") 
 		self.setFixedSize(self.boardWidth, self.boardHeight)
-		self.secondaryBoard = scoreBoard()
+		#self.secondaryBoard = scoreBoard()
 
 	def paintEvent(self, event):
 		qp = QtGui.QPainter()
@@ -69,7 +100,8 @@ class gameBoard(QtGui.QFrame):
 		self.drawPath(qp)
 		self.drawTowers(qp)
 		self.drawOutline(qp)
-		self.secondaryBoard.repaint()
+		#self.secondaryBoard.repaint()
+		#print "!"
 		qp.end()
 
 	def drawGrid(self, qp):
@@ -94,11 +126,12 @@ class gameBoard(QtGui.QFrame):
 		qp.setPen(color)
 		qp.setBrush(QtGui.QColor(255, 80, 0, 255))
 		for i in self.towerOccupancy:
-			qp.drawRect(i[0], i[1], i[2], i[2])
+			qp.drawRect(i.position_x, i.position_y, i.size, i.size)
 
 	def pause(self):
 		print "paused"
 
+	#returns modified mouse co-ordinates to account for board dimensions.
 	def get_x(self):
 		if self.mouse_x > self.boardWidth-40 and self.mouse_size == 2:
 			return self.boardWidth-40
@@ -126,8 +159,7 @@ class gameBoard(QtGui.QFrame):
 		return x - (x%base)
 
 	#called by controller: updates the value of mouse positions
-	def updateMouse(self, size, x, y):
-		self.mouse_size = size
+	def updateMouse(self, x, y):
 		self.mouse_y = y
 		self.mouse_x = x
 		#print x, y
@@ -147,11 +179,12 @@ class gameBoard(QtGui.QFrame):
 		return True
 
 	#called by controller: adds tower to array of towers when mouse clicked.
-	def updateTowers(self):
+	def placeTowers(self):
 		#print self.isMouseIn
 		if self.checkPlacement():
 			if self.isMouseIn:
-				self.towerOccupancy.append([self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize])
+				#self.towerOccupancy.append([self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize])
+				self.towerOccupancy.append(Tower(self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize))
 			if self.mouse_size == 1:
 				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
 			elif self.mouse_size == 2:
@@ -163,9 +196,6 @@ class gameBoard(QtGui.QFrame):
 			print "Unplaceable Tower!"
 		#print self.nonOccupiable
 		self.repaint()
-
-
-
 
 class scoreBoard(QtGui.QFrame):
 	'''
@@ -180,25 +210,47 @@ class scoreBoard(QtGui.QFrame):
 	fast forward
 	pause/start
 	'''
+
 	def paintEvent(self, event):
 		qp = QtGui.QPainter()
 		qp.begin(self)
-		#self.showTime(qp)
-		#self.showScore(qp)
-		print "."
+		self.showTime(qp)
+		#print "."
 		qp.end()
 
 	def start(self):
 		self.setStyleSheet("QWidget { background: #A4A4A4 }") 
 		self.setGeometry(600, 0, 200, 520)
-		self.mainBoard = gameBoard()
-'''
+
+		btn1 = QtGui.QPushButton("Tower 1", self)
+		btn1.move(10, 50)
+
+		btn2 = QtGui.QPushButton("Tower 2", self)
+		btn2.move(110, 50)
+
+		btn1.clicked.connect(self.towerOne)            
+		btn2.clicked.connect(self.towerTwo)
+
+	def towerOne(self):
+		sender = self.sender()
+		TowerDefence.mainBoard.mouse_size = 1
+
+	def towerTwo(self):
+		sender = self.sender()
+		TowerDefence.mainBoard.mouse_size = 2
+
+	def buttonClicked(self):
+		sender = self.sender()
+		print "button was pressed", sender.text()
+
 	def showTime(self, qp):
 		qp.setPen(QtGui.QColor(0, 34, 3))
 		qp.setFont(QtGui.QFont('Decorative', 10))
-		qp.drawText(10,20, "GAME TICKS: " + str(self.mainBoard.getTime()))
-		print "TIME REDRAWN!"
-'''
+		qp.drawText(10,20, "GAME TICKS: ")
+		#print "TIME REDRAWN!"
+
+	def towerOptions(self, qp):
+		pass
 
 app = QtGui.QApplication(sys.argv)
 towerdef = TowerDefence()
