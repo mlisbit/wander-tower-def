@@ -52,15 +52,22 @@ class TowerDefence(QtGui.QMainWindow):
 
 #tower objects 
 class Tower(object):
-	position_x = 0
-	position_y = 0
-	size = 0
-	shotrange = 50
-
-	def __init__(self, x, y, s): 
+	def __init__(self, x=-100, y=-100, s=0): 
 		self.position_x = x
 		self.position_y = y
 		self.size = s
+		self.occupied = []
+		self.shotrange = 120
+
+	def getCenter(self):
+		#print self.size
+		return QtCore.QPoint(self.position_x + (self.size/2), self.position_y + self.size/2)
+
+	def getOccupied(self):
+		return self.occupied
+
+	def getRange(self):
+		return self.shotrange
 
 class Enemy(object):
 	health = 100
@@ -83,7 +90,11 @@ class gameBoard(QtGui.QFrame):
 
 		self.enemyPath = [[0,2], [1,2], [2,2], [3,2], [4,2], [4,3], [4,4], [4,5], [4,6], [4,7], [4,8], [4,9], [4,10]]
 
-		self.isMouseIn = False;
+		self.isMouseIn = False
+		self.towerSelected = True
+		self.isTowerSelected = False
+		self.lastPlacedTower = Tower()
+
 		self.towerOccupancy = []
 		self.nonOccupiable = []
 
@@ -99,7 +110,10 @@ class gameBoard(QtGui.QFrame):
 		self.drawEnemies(qp)
 		self.drawPath(qp)
 		self.drawTowers(qp)
-		self.drawOutline(qp)
+		if self.isTowerSelected:
+			self.drawOutline(qp)
+		if self.towerSelected:
+			self.selectTower(qp, self.lastPlacedTower)
 		#self.secondaryBoard.repaint()
 		#print "!"
 		qp.end()
@@ -154,6 +168,12 @@ class gameBoard(QtGui.QFrame):
 			qp.setBrush(QtGui.QColor(0, 0, 0, 155))
 			qp.drawRect(self.myround(self.get_x()), self.myround(self.get_y()), self.mouse_size*20, self.mouse_size*20)
 
+	def selectTower(self, qp, t):
+		qp.setPen(QtCore.Qt.NoPen)
+		qp.setBrush(QtGui.QColor(0, 0, 0, 55))
+		qp.drawEllipse(t.getCenter(), t.shotrange, t.shotrange)
+
+
 	#rounds to base, for positioning of towers and outlines
 	def myround(self, x, base=20):
 		return x - (x%base)
@@ -181,19 +201,34 @@ class gameBoard(QtGui.QFrame):
 	#called by controller: adds tower to array of towers when mouse clicked.
 	def placeTowers(self):
 		#print self.isMouseIn
-		if self.checkPlacement():
+		if self.checkPlacement() and self.isTowerSelected:
 			if self.isMouseIn:
+				self.lastPlacedTower = Tower(self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize)
 				#self.towerOccupancy.append([self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize])
-				self.towerOccupancy.append(Tower(self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize))
+				self.towerOccupancy.append(self.lastPlacedTower)
+				self.isTowerSelected = False
+
 			if self.mouse_size == 1:
 				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
+				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())])
 			elif self.mouse_size == 2:
 				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
 				self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
 				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
 				self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
+
+				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())])
+				self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
+				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
+				self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
 		elif self.isMouseIn:
 			print "Unplaceable Tower!"
+			for i in self.towerOccupancy:
+				if [self.myround(self.get_x()),self.myround(self.get_y())] in i.getOccupied():
+					print "print tower stats"
+					self.lastPlacedTower = i
+					self.isTowerSelected = False
+					break
 		#print self.nonOccupiable
 		self.repaint()
 
@@ -234,10 +269,12 @@ class scoreBoard(QtGui.QFrame):
 	def towerOne(self):
 		sender = self.sender()
 		TowerDefence.mainBoard.mouse_size = 1
+		TowerDefence.mainBoard.isTowerSelected = True
 
 	def towerTwo(self):
 		sender = self.sender()
 		TowerDefence.mainBoard.mouse_size = 2
+		TowerDefence.mainBoard.isTowerSelected = True
 
 	def buttonClicked(self):
 		sender = self.sender()
