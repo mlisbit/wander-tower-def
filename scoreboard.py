@@ -87,12 +87,12 @@ class scoreBoard(QtGui.QFrame):
 	def towerThree(self):
 		sender = self.sender()
 		self.mainBoard.mouse_size = 2
-		self.mainBoard.currentlySelectedTower = "TWO"
+		self.mainBoard.currentlySelectedTower = "THREE"
 		self.mainBoard.isTowerSelected = True
 	def towerFour(self):
 		sender = self.sender()
 		self.mainBoard.mouse_size = 2
-		self.mainBoard.currentlySelectedTower = "TWO"
+		self.mainBoard.currentlySelectedTower = "FOUR"
 		self.mainBoard.isTowerSelected = True
 
 	def buttonClicked(self):

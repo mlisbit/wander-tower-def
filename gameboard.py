@@ -19,11 +19,14 @@ class gameBoard(QtGui.QFrame):
 		self.money = 1000
 		self.gameTime = 0
 
+		self.currentlySelectedTower="ONE"
+
 		self.enemyPath = [[0,2], [1,2], [2,2], [3,2], [4,2], [4,3], [4,4], [4,5], [4,6], [4,7], [4,8], [4,9], [4,10]]
 
 		self.isMouseIn = False
-		self.towerSelected = True
+		
 		self.isTowerSelected = False
+		self.isTowerClicked = False
 		self.lastPlacedTower = Tower()
 
 		self.towerOccupancy = []
@@ -43,7 +46,7 @@ class gameBoard(QtGui.QFrame):
 		self.drawTowers(qp)
 		if self.isTowerSelected:
 			self.drawOutline(qp)
-		if self.towerSelected:
+		if self.isTowerClicked:
 			self.selectTower(qp, self.lastPlacedTower)
 		#self.secondaryBoard.repaint()
 		#print "!"
@@ -71,7 +74,7 @@ class gameBoard(QtGui.QFrame):
 		qp.setPen(color)
 		qp.setBrush(QtGui.QColor(255, 80, 0, 255))
 		for i in self.towerOccupancy:
-			qp.drawRect(i.position_x, i.position_y, i.size, i.size)
+			qp.drawRect(i.position_x, i.position_y, i.size*self.blockSize, i.size*self.blockSize)
 
 	def pause(self):
 		print "paused"
@@ -133,31 +136,42 @@ class gameBoard(QtGui.QFrame):
 	def placeTowers(self):
 		#print self.isMouseIn
 		if self.checkPlacement() and self.isTowerSelected:
-			if self.isMouseIn:
-				self.lastPlacedTower = Tower(self.myround(self.get_x()),self.myround(self.get_y()), "ONE")
+			self.lastPlacedTower = Tower(self.myround(self.get_x()),self.myround(self.get_y()), self.currentlySelectedTower)
+			if self.isMouseIn and self.money >= self.lastPlacedTower.cost:
+
 				#self.towerOccupancy.append([self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize])
 				self.towerOccupancy.append(self.lastPlacedTower)
 				self.isTowerSelected = False
+				self.isTowerClicked = True
+				self.money -= self.lastPlacedTower.cost
 
-			if self.mouse_size == 1:
-				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
-				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())])
-			elif self.mouse_size == 2:
-				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
-				self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
-				self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
-				self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
+				if self.mouse_size == 1:
+					self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
+					self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())])
+				elif self.mouse_size == 2:
+					self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())])
+					self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
+					self.nonOccupiable.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
+					self.nonOccupiable.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
 
-				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())])
-				self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
-				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
-				self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
+					self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())])
+					self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())])
+					self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
+					self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
+			else:
+				self.lastPlacedTower = Tower()
+				self.isTowerSelected = False
+				print "insufficeient funds"
+				
 		elif self.isMouseIn:
 			for i in self.towerOccupancy:
 				if [self.myround(self.get_x()),self.myround(self.get_y())] in i.getOccupied():
 					print "print tower stats"
 					self.lastPlacedTower = i
 					self.isTowerSelected = False
+					self.isTowerClicked = True
 					break
+				else:
+					self.isTowerClicked = False
 		#print self.nonOccupiable
 		self.repaint()
