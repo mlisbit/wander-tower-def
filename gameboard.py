@@ -16,7 +16,7 @@ class gameBoard(QtGui.QFrame):
 		self.score = 0
 		self.mouse_x = -1
 		self.mouse_y = -1
-	
+		self.money = 1000
 		self.gameTime = 0
 
 		self.enemyPath = [[0,2], [1,2], [2,2], [3,2], [4,2], [4,3], [4,4], [4,5], [4,6], [4,7], [4,8], [4,9], [4,10]]
@@ -134,7 +134,7 @@ class gameBoard(QtGui.QFrame):
 		#print self.isMouseIn
 		if self.checkPlacement() and self.isTowerSelected:
 			if self.isMouseIn:
-				self.lastPlacedTower = Tower(self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize)
+				self.lastPlacedTower = Tower(self.myround(self.get_x()),self.myround(self.get_y()), "ONE")
 				#self.towerOccupancy.append([self.myround(self.get_x()),self.myround(self.get_y()),self.mouse_size*self.blockSize])
 				self.towerOccupancy.append(self.lastPlacedTower)
 				self.isTowerSelected = False
@@ -153,7 +153,6 @@ class gameBoard(QtGui.QFrame):
 				self.lastPlacedTower.occupied.append([self.myround(self.get_x()),self.myround(self.get_y())+self.blockSize])
 				self.lastPlacedTower.occupied.append([self.myround(self.get_x())+self.blockSize,self.myround(self.get_y())+self.blockSize])
 		elif self.isMouseIn:
-			print "Unplaceable Tower!"
 			for i in self.towerOccupancy:
 				if [self.myround(self.get_x()),self.myround(self.get_y())] in i.getOccupied():
 					print "print tower stats"
