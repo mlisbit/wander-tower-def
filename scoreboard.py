@@ -2,6 +2,8 @@
 import sys, time
 from PyQt4 import QtCore, QtGui
 
+from towers import *
+
 class scoreBoard(QtGui.QFrame):
 	'''
 	THINGS TO ADD. MAYBE.
@@ -55,13 +57,14 @@ class scoreBoard(QtGui.QFrame):
 		qp.setBrush(QtGui.QColor(0, 0, 0, 0))
 		qp.drawRect(10, y_off, 180, 80)
 
-		qp.setPen(QtGui.QColor(0, 34, 3))
-		qp.setFont(QtGui.QFont('Decorative', 10))
-		qp.drawText(15,y_off+15, "DAMAGE: " + str(self.mainBoard.lastPlacedTower.damage))
-		qp.drawText(15,y_off+30, "RANGE: " + str(self.mainBoard.lastPlacedTower.shotrange))
-		qp.drawText(15,y_off+45, "RoF: " + str(self.mainBoard.lastPlacedTower.rof))
-		qp.drawText(15,y_off+60, "VALUE: " + str(self.mainBoard.lastPlacedTower.retailvalue))
-		qp.drawText(15,y_off+75, "LEVEL: " + str(self.mainBoard.lastPlacedTower.level))
+		if self.mainBoard.isTowerClicked or self.mainBoard.isTowerSelected:
+			qp.setPen(QtGui.QColor(0, 34, 3))
+			qp.setFont(QtGui.QFont('Decorative', 10))
+			qp.drawText(15,y_off+15, "DAMAGE: " + str(self.mainBoard.lastPlacedTower.damage))
+			qp.drawText(15,y_off+30, "RANGE: " + str(self.mainBoard.lastPlacedTower.shotrange))
+			qp.drawText(15,y_off+45, "RoF: " + str(self.mainBoard.lastPlacedTower.rof))
+			qp.drawText(15,y_off+60, "VALUE: " + str(self.mainBoard.lastPlacedTower.retailvalue))
+			qp.drawText(15,y_off+75, "LEVEL: " + str(self.mainBoard.lastPlacedTower.level))
 
 	def showGameStats(self, qp):
 		y_off =5
@@ -72,28 +75,25 @@ class scoreBoard(QtGui.QFrame):
 		qp.setFont(QtGui.QFont('Decorative', 10))
 		qp.drawText(15,20, "MONEY: "+ str(self.mainBoard.money))
 
-	def towerOne(self):
-		sender = self.sender()
-		self.mainBoard.mouse_size = 1
-		self.mainBoard.currentlySelectedTower = "ONE"
+	def towerSelected(self):
 		self.mainBoard.isTowerSelected = True
+		self.mainBoard.isTowerClicked = False
+		
+	def towerOne(self):
+		self.towerSelected()
+		self.mainBoard.lastPlacedTower = Tower(None, None, "ONE")
 
 	def towerTwo(self):
-		sender = self.sender()
-		self.mainBoard.mouse_size = 2
-		self.mainBoard.currentlySelectedTower = "TWO"
-		self.mainBoard.isTowerSelected = True
+		self.towerSelected()
+		self.mainBoard.lastPlacedTower = Tower(None, None, "TWO")
 
 	def towerThree(self):
-		sender = self.sender()
-		self.mainBoard.mouse_size = 2
-		self.mainBoard.currentlySelectedTower = "THREE"
-		self.mainBoard.isTowerSelected = True
+		self.towerSelected()
+		self.mainBoard.lastPlacedTower = Tower(None, None, "THREE")
+
 	def towerFour(self):
-		sender = self.sender()
-		self.mainBoard.mouse_size = 2
-		self.mainBoard.currentlySelectedTower = "FOUR"
-		self.mainBoard.isTowerSelected = True
+		self.towerSelected()
+		self.mainBoard.lastPlacedTower = Tower(None, None, "FOUR")
 
 	def buttonClicked(self):
 		sender = self.sender()

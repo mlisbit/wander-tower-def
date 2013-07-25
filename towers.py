@@ -11,6 +11,7 @@ class Tower(object):
 		self.retailvalue = 1000
 		self.level = 1
 
+
 		if t=="ONE":
 			self.type1()
 		elif t=="TWO":
@@ -21,6 +22,8 @@ class Tower(object):
 			self.type4()
 
 	def type1(self):
+		self.color = QtGui.QColor(255, 80, 100, 255)
+		self.name = "mini helper"
 		self.size = 1
 		self.shotrange = 120
 		self.cost = 200
@@ -28,18 +31,24 @@ class Tower(object):
 		self.rof = 5
 
 	def type2(self):
+		self.color = QtGui.QColor(0, 200, 100, 255)
+		self.name = "gargatuan"
 		self.size = 2
-		self.shotrange = 320
+		self.shotrange = 200
 		self.cost = 200
 		self.damage = 200
 		self.rof = 1
+
 	def type3(self):
+		self.color = QtGui.QColor(25, 180, 10, 255)
 		self.size = 2
 		self.shotrange = 160
 		self.cost = 200
 		self.damage = 200
 		self.rof = 1
+
 	def type4(self):
+		self.color = QtGui.QColor(55, 80, 100, 255)
 		self.size = 2
 		self.shotrange = 100
 		self.cost = 200
