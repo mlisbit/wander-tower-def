@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import sys, time
 from PyQt4 import QtCore, QtGui
+from math import floor
 
 class Enemy(object):
 	
@@ -15,28 +16,24 @@ class Enemy(object):
 
 		self.color = QtGui.QColor(25, 80, 100, 255)
 		
-		self.position_x = 10
-		self.position_y = 50
+		self.position_x = x*20
+		self.position_y = y*20
 
 		self.current_block = [x,y]
 		self.direction = "RIGHT"
 
 	def move(self):
-		if self.direction == "RIGHT":
-			self.position_x += self.speed
-		elif self.direction == "DOWN":
-			self.position_y += self.speed
-		elif self.direction == "LEFT":
-			self.position_x -= self.speed
-		elif self.direction == "UP":
-			self.position_y -= self.speed
+		
+		
+		print self.getCurrentBlock(), self.position_y, self.position_x
+		#print "------", self.getFutureBlock()
 
 		temp = self.current_block
 		self.current_block = self.getCurrentBlock()
 
-		if temp != self.getCurrentBlock():
-			print "shit needs to go down"
-			header = self.enemyPath.pop(0)
+		if temp != self.current_block:
+			print "MOVED BLOCK!!!"
+			self.enemyPath.pop(0)
 			if self.enemyPath[1] != self.getFutureBlock():
 				print "TURN REQUIRED!"
 				print self.getCurrentBlock()
@@ -53,17 +50,32 @@ class Enemy(object):
 				elif self.getCurrentBlock()[0] > self.enemyPath[1][0]:
 					print "TURN LEFT!"
 					self.direction = "LEFT"
-
-
-		#print "current block", self.current_block
-		#print "future block", self.getFutureBlock()
+		if self.direction == "RIGHT":
+			self.position_x += self.speed
+		elif self.direction == "DOWN":
+			self.position_y += self.speed
+		elif self.direction == "LEFT":
+			self.position_x -= self.speed
+		elif self.direction == "UP":
+			self.position_y -= self.speed
 
 	def getCurrentBlock(self):
-		#print self.position_x, self.position_y
-		current_x = ((self.position_x) - (self.position_x)%20)/20
-		current_y = ((self.position_y) - (self.position_y)%20)/20
+		#print "#######", self.position_x
+		if self.direction == "UP":
+			current_y = int(floor((self.position_y+20)/20))
+			if self.position_y <= 0:
+				current_y = 0
+		else:
+			current_y = int(floor(self.position_y/20))
+			if current_y <= 0:
+				current_y = 0
+
+		if self.direction == "LEFT":
+			current_x = int(floor((self.position_x+18)/20))
+			#print "FUCK"
+		else:
+			current_x = int(floor(self.position_x/20))
 		return [current_x, current_y]
-		#return x - (x%base)
 
 	def getFutureBlock(self):
 		if self.direction	== "RIGHT":
@@ -77,4 +89,4 @@ class Enemy(object):
 		return None
 
 	def getCenter(self):
-		return QtCore.QPoint(self.position_x, self.position_y)
+		return QtCore.QPoint(self.position_x+10, self.position_y+10)

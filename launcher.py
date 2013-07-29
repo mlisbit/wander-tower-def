@@ -22,15 +22,14 @@ class TowerDefence(QtGui.QMainWindow):
 		self.mainBoard.start()
 		self.secondaryBoard.start()
 
-		self.mainBoard.mouse_size = 2
-
 		self.timer = QtCore.QBasicTimer()
-		self.timer.start(200, self)
+		self.timer.start(100, self)
 		self.update()
 
 	#game thread
 	def timerEvent(self, event):
 		if event.timerId() == self.timer.timerId():
+			self.mainBoard.enemyOccupancy[0].move()
 			self.repaint()
 		else:
 			QtGui.QFrame.timerEvent(self, event)
