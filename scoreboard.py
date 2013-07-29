@@ -79,7 +79,7 @@ class scoreBoard(QtGui.QFrame):
 		qp.drawRect(10, y_off, 180, y_off + 70)
 		qp.setPen(QtGui.QColor(0, 34, 3))
 		qp.setFont(QtGui.QFont('Decorative', 10))
-		qp.drawText(15,20, "MONEY: "+ str(self.mainBoard.money))
+		qp.drawText(15,20, "MONEY: "+ str(globals.money))
 
 	def towerSelected(self):
 		self.mainBoard.isTowerSelected = True
