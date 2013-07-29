@@ -7,6 +7,8 @@ from towers import *
 from scoreboard import *
 from gameboard import *
 
+import globals
+
 
 class TowerDefence(QtGui.QMainWindow):
 	def __init__(self):
@@ -23,13 +25,14 @@ class TowerDefence(QtGui.QMainWindow):
 		self.secondaryBoard.start()
 
 		self.timer = QtCore.QBasicTimer()
-		self.timer.start(100, self)
+		self.timer.start(globals.gameSpeed, self)
 		self.update()
 
 	#game thread
 	def timerEvent(self, event):
 		if event.timerId() == self.timer.timerId():
-			self.mainBoard.enemyOccupancy[0].move()
+			#moves every enemy in the list of enemies
+			self.mainBoard.moveEnemies()
 			self.repaint()
 		else:
 			QtGui.QFrame.timerEvent(self, event)

@@ -5,24 +5,26 @@ import copy
 
 from towers import *
 from enemies import *
+import globals
 
 class gameBoard(QtGui.QFrame):
-	boardWidth = 600
-	boardHeight = 520
-	blockSize = 20
+	
 
 	def __init__(self, parent):
 		QtGui.QFrame.__init__(self, parent)
 		
-		self.money = 1000
-		self.score = 0
-		self.lives = 20
+		self.boardWidth = globals.boardWidth
+		self.boardHeight = globals.boardHeight
+		self.blockSize = globals.blockSize
+
+		self.money = globals.money
+		self.score = globals.money
+		self.lives = globals.lives
 
 		self.mouse_x = -1
 		self.mouse_y = -1
 
-		self.enemyPath = [[0,2], [1,2], [2,2], [2,1], [2,0], [3,0], [4,0], [5,0], [5,1], [5,2], [5,3], [4,3], [3,3], [3,4], [3,5], [3,6], [3,7], [2,7], [1,7], [1,8], [1,9], [1,10], [1,11], [1,12], [1,13]]
-
+		self.enemyPath = globals.enemyPath
 		self.isMouseIn = False
 		self.isTowerSelected = False
 		self.isTowerClicked = False
@@ -36,10 +38,8 @@ class gameBoard(QtGui.QFrame):
 	def start(self):
 		self.setStyleSheet("QWidget { background: #A9F5D0 }") 
 		self.setFixedSize(self.boardWidth, self.boardHeight)
-		#first_enemy.enemyPath = 
-		first_enemy = Enemy(self.enemyPath[0][0], self.enemyPath[0][1], copy.deepcopy(self.enemyPath))
-		
-		self.enemyOccupancy.append(first_enemy)
+		second_enemy = Enemy(copy.deepcopy(self.enemyPath))
+		self.enemyOccupancy.append(second_enemy)
 		#self.secondaryBoard = scoreBoard()
 
 	def paintEvent(self, event):
@@ -63,11 +63,17 @@ class gameBoard(QtGui.QFrame):
 			qp.drawLine(i, 0, i, self.boardHeight)
 			qp.drawLine(0, i, self.boardWidth, i)
 
+	def moveEnemies(self):
+		if self.towerOccupancy > 0:
+			for i in self.enemyOccupancy:
+				i.move()
+
 	def drawEnemies(self, qp):
 		qp.setPen(QtCore.Qt.NoPen)
 		for i in self.enemyOccupancy:
 			qp.setBrush(i.color)
 			qp.drawEllipse(i.getCenter(), i.size, i.size)
+			self.enemyOccupancy[:] = [tup for tup in self.enemyOccupancy if tup.isFinished == False]
 
 	def drawPath(self, qp):
 		qp.setPen(QtCore.Qt.NoPen)

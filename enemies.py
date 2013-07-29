@@ -4,52 +4,47 @@ from PyQt4 import QtCore, QtGui
 from math import floor
 
 class Enemy(object):
-	
-	
-	def __init__(self, x=None, y=None, ep=None):
+	def __init__(self, ep=None):
 		self.enemyPath = ep
 		self.health = 100
 		self.speed = 2
 
 		self.size = 8
 		self.grace_offset = self.size + 2
+		self.isFinished = False
 
 		self.color = QtGui.QColor(25, 80, 100, 255)
 		
-		self.position_x = x*20
-		self.position_y = y*20
+		self.position_x = self.enemyPath[0][0]*20
+		self.position_y = self.enemyPath[0][1]*20
 
-		self.current_block = [x,y]
+		self.current_block = [self.enemyPath[0][0],self.enemyPath[0][1]]
 		self.direction = "RIGHT"
 
 	def move(self):
-		
-		
-		print self.getCurrentBlock(), self.position_y, self.position_x
-		#print "------", self.getFutureBlock()
-
 		temp = self.current_block
 		self.current_block = self.getCurrentBlock()
 
 		if temp != self.current_block:
-			print "MOVED BLOCK!!!"
-			self.enemyPath.pop(0)
-			if self.enemyPath[1] != self.getFutureBlock():
-				print "TURN REQUIRED!"
-				print self.getCurrentBlock()
-				print self.enemyPath[1]
-				if self.getCurrentBlock()[1] < self.enemyPath[1][1]:
-					print "TURN DOWN!"
-					self.direction = "DOWN"
-				elif self.getCurrentBlock()[1] > self.enemyPath[1][1]:
-					print "TURN UP!"
-					self.direction = "UP"
-				elif self.getCurrentBlock()[0] < self.enemyPath[1][0]:
-					print "TURN RIGHT!"
-					self.direction = "RIGHT"
-				elif self.getCurrentBlock()[0] > self.enemyPath[1][0]:
-					print "TURN LEFT!"
-					self.direction = "LEFT"
+			#print "MOVED BLOCK!!!"
+			try:
+				self.enemyPath.pop(0)
+				if self.enemyPath[1] != self.getFutureBlock():
+					if self.getCurrentBlock()[1] < self.enemyPath[1][1]:
+						#print "TURN DOWN!"
+						self.direction = "DOWN"
+					elif self.getCurrentBlock()[1] > self.enemyPath[1][1]:
+						#print "TURN UP!"
+						self.direction = "UP"
+					elif self.getCurrentBlock()[0] < self.enemyPath[1][0]:
+						#print "TURN RIGHT!"
+						self.direction = "RIGHT"
+					elif self.getCurrentBlock()[0] > self.enemyPath[1][0]:
+						#print "TURN LEFT!"
+						self.direction = "LEFT"
+			except:
+				print "the path is done!"
+				self.isFinished = True 
 		if self.direction == "RIGHT":
 			self.position_x += self.speed
 		elif self.direction == "DOWN":
@@ -60,7 +55,6 @@ class Enemy(object):
 			self.position_y -= self.speed
 
 	def getCurrentBlock(self):
-		#print "#######", self.position_x
 		if self.direction == "UP":
 			current_y = int(floor((self.position_y+20)/20))
 			if self.position_y <= 0:
@@ -72,7 +66,6 @@ class Enemy(object):
 
 		if self.direction == "LEFT":
 			current_x = int(floor((self.position_x+18)/20))
-			#print "FUCK"
 		else:
 			current_x = int(floor(self.position_x/20))
 		return [current_x, current_y]

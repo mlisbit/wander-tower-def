@@ -3,6 +3,7 @@ import sys, time
 from PyQt4 import QtCore, QtGui
 
 from towers import *
+import globals
 
 class scoreBoard(QtGui.QFrame):
 	'''
@@ -20,6 +21,9 @@ class scoreBoard(QtGui.QFrame):
 	def __init__(self, parent):
 		QtGui.QFrame.__init__(self, parent)
 		self.mainBoard = parent.mainBoard
+		self.controller = parent
+		self.isPaused = False
+
 
 	def paintEvent(self, event):
 		qp = QtGui.QPainter()
@@ -45,6 +49,8 @@ class scoreBoard(QtGui.QFrame):
 
 		btn4 = QtGui.QPushButton("Tower 4", self)
 		btn4.move(110, y_off+30)
+
+		self.pauseButton()
 
 		btn1.clicked.connect(self.towerOne)            
 		btn2.clicked.connect(self.towerTwo)
@@ -94,6 +100,25 @@ class scoreBoard(QtGui.QFrame):
 	def towerFour(self):
 		self.towerSelected()
 		self.mainBoard.lastPlacedTower = Tower(None, None, "FOUR")
+
+	def pauseButton(self):
+		self.pauseButton = QtGui.QPushButton("Pause", self)
+		self.pauseButton.move(110, 480)
+		self.pauseButton.clicked.connect(self.pauseGame) 
+		self.repaint()
+		self.update()    
+
+	def pauseGame(self):
+		if self.isPaused == False:
+			self.pauseButton.setText('Play')
+			print "game paused" 
+			self.isPaused = True 
+			self.controller.timer.stop()  
+		else:
+			self.pauseButton.setText('Pause')
+			print "playing game" 
+			self.isPaused = False 
+			self.controller.timer.start(globals.gameSpeed, self.controller)  
 
 	def buttonClicked(self):
 		sender = self.sender()
