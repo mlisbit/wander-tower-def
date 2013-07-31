@@ -13,11 +13,9 @@ class gameBoard(QtGui.QFrame):
 	def __init__(self, parent):
 		QtGui.QFrame.__init__(self, parent)
 		
-
 		self.mouse_x = -1
 		self.mouse_y = -1
 
-		self.enemyPath = globals.enemyPath
 		self.isMouseIn = False
 		self.isTowerSelected = False
 		self.isTowerClicked = False
@@ -31,15 +29,15 @@ class gameBoard(QtGui.QFrame):
 	def start(self):
 		self.setStyleSheet("QWidget { background: #A9F5D0 }") 
 		self.setFixedSize(globals.boardWidth, globals.boardHeight)
-		second_enemy = Enemy(copy.deepcopy(self.enemyPath))
-		self.enemyOccupancy.append(second_enemy)
-		#self.secondaryBoard = scoreBoard()
+		#adds the enemy path to non occupiable blocks.
+		for i in globals.enemyPath:
+			self.nonOccupiable.append([i[0]*globals.blockSize, i[1]*globals.blockSize])
 
 	def paintEvent(self, event):
 		qp = QtGui.QPainter()
 		qp.begin(self)
+		self.waveManager()
 		self.drawGrid(qp)
-		
 		self.drawPath(qp)
 		self.drawTowers(qp)
 		if self.isTowerSelected:
@@ -48,6 +46,15 @@ class gameBoard(QtGui.QFrame):
 			self.selectTower(qp, self.lastPlacedTower)
 		self.drawEnemies(qp)
 		qp.end()
+
+	def waveManager(self):
+		#print self.enemyOccupancy.__len__()
+
+		if self.enemyOccupancy.__len__() == 0:
+			self.enemyOccupancy.insert(0, BlueCircle(copy.deepcopy(globals.enemyPath)))
+		else:
+			if self.enemyOccupancy[0].position_x >= 10:
+				self.enemyOccupancy.insert(0, GreenCircle(copy.deepcopy(globals.enemyPath)))
 
 	def drawGrid(self, qp):
 		pen = QtGui.QPen(QtGui.QColor(25, 180, 40, 55), 2, QtCore.Qt.SolidLine)
@@ -71,11 +78,11 @@ class gameBoard(QtGui.QFrame):
 	def drawPath(self, qp):
 		qp.setPen(QtCore.Qt.NoPen)
 		qp.setBrush(QtGui.QColor(255, 80, 100, 255))
-		for i in self.enemyPath:
+		for i in globals.enemyPath:
 			qp.drawRect(i[0]*globals.blockSize, i[1]*globals.blockSize, 20, 20)
 
 	def drawTowers(self, qp):
-		#qp.setPen(QtCore.Qt.NoPen)
+		#qp.setPen(QtCore.Qt.NoPen) uncomment to not draw tower borders.
 		color = QtGui.QColor(0, 0, 0)
 		qp.setPen(color)
 		
@@ -102,7 +109,7 @@ class gameBoard(QtGui.QFrame):
 		#self.lastPlacedTower.size = self.lastPlacedTower.size
 		if self.isMouseIn:
 			qp.setPen(QtCore.Qt.NoPen)
-			qp.setBrush(QtGui.QColor(255, 80, 0, 155))
+			qp.setBrush(self.lastPlacedTower.getColor())
 			qp.drawRect(self.myround(self.get_x()), self.myround(self.get_y()), self.lastPlacedTower.size*20, self.lastPlacedTower.size*20)
 			qp.setBrush(QtGui.QColor(0, 0, 0, 55))
 			center = QtCore.QPoint(self.myround(self.get_x()) + (self.lastPlacedTower.size*20/2), self.myround(self.get_y()) + self.lastPlacedTower.size*20/2)

@@ -5,16 +5,13 @@ from math import floor
 
 class Enemy(object):
 	def __init__(self, ep=None):
+		
 		self.enemyPath = ep
-		self.health = 100
-		self.speed = 2
 
 		self.size = 8
 		self.grace_offset = self.size + 2
 		self.isFinished = False
 
-		self.color = QtGui.QColor(25, 80, 100, 255)
-		
 		self.position_x = self.enemyPath[0][0]*20
 		self.position_y = self.enemyPath[0][1]*20
 
@@ -83,3 +80,28 @@ class Enemy(object):
 
 	def getCenter(self):
 		return QtCore.QPoint(self.position_x+10, self.position_y+10)
+
+class BlueCircle(Enemy):
+	def __init__(self, ep=None):
+		super(BlueCircle, self).__init__(ep)
+		self.health = 100
+		self.speed = 2
+		self.color = QtGui.QColor(25, 80, 100, 255)
+
+class GreenCircle(Enemy):
+	def __init__(self, ep=None):
+		super(GreenCircle, self).__init__(ep)
+		self.health = 100
+		self.speed = 2
+		self.color = QtGui.QColor(25, 180, 10, 255)
+
+class RedCircle(Enemy):
+	def __init__(self, ep=None):
+		super(RedCircle, self).__init__(ep)
+		self.health = 100
+		self.speed = 2
+		self.color = QtGui.QColor(25, 180, 10, 255)
+		
+		
+		
+

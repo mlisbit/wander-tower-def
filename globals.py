@@ -8,6 +8,8 @@ money = 1000
 score = 0
 lives = 20
 
+currentWave = 0
+
 isPaused = False
 
 gameSpeed = 30

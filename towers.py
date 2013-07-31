@@ -55,6 +55,9 @@ class Tower(object):
 		self.damage = 200
 		self.rof = 1
 
+	def getColor(self):
+		return self.color
+		
 	def getCenter(self):
 		#print self.size
 		return QtCore.QPoint(self.position_x + (self.size*20/2), self.position_y + self.size*20/2)
