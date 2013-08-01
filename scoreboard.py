@@ -51,6 +51,7 @@ class scoreBoard(QtGui.QFrame):
 		btn4.move(110, y_off+30)
 
 		self.pauseButton()
+		self.nextWaveButton()
 
 		btn1.clicked.connect(self.towerOne)
 		btn2.clicked.connect(self.towerTwo)
@@ -82,6 +83,7 @@ class scoreBoard(QtGui.QFrame):
 		qp.drawText(15,20, "MONEY: "+ str(globals.money))
 		qp.drawText(15,35, "LIVES: "+ str(globals.lives))
 		qp.drawText(15,50, "SCORE: "+ str(globals.score))
+		qp.drawText(15,65, "CURRENT WAVE: "+ str(self.mainBoard.currentWave)+" / 3")
 
 	def towerSelected(self):
 		self.mainBoard.isTowerSelected = True
@@ -107,8 +109,6 @@ class scoreBoard(QtGui.QFrame):
 		self.pauseButton = QtGui.QPushButton("Pause", self)
 		self.pauseButton.move(110, 480)
 		self.pauseButton.clicked.connect(self.pauseGame) 
-		self.repaint()
-		self.update()    
 
 	def pauseGame(self):
 		if self.isPaused == False:
@@ -121,6 +121,15 @@ class scoreBoard(QtGui.QFrame):
 			print "playing game" 
 			self.isPaused = False 
 			self.controller.timer.start(globals.gameSpeed, self.controller)  
+
+	def nextWaveButton(self):
+		self.nextWave = QtGui.QPushButton("Next Wave", self)
+		self.nextWave.move(15, 480)
+		self.nextWave.clicked.connect(self.nextWaveAction) 
+
+	def nextWaveAction(self):
+		self.mainBoard.isWaveSent = True
+
 
 	def buttonClicked(self):
 		sender = self.sender()

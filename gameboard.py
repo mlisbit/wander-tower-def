@@ -13,9 +13,16 @@ class gameBoard(QtGui.QFrame):
 	def __init__(self, parent):
 		QtGui.QFrame.__init__(self, parent)
 		self.controller = parent
+
 		self.mouse_x = -1
 		self.mouse_y = -1
 
+		self.currentWave = 1
+		self.isWaveSent = False
+		self.isWaveInProgress = False
+
+
+		self.isWinner = False
 		self.isMouseIn = False
 		self.isTowerSelected = False
 		self.isTowerClicked = False
@@ -49,11 +56,26 @@ class gameBoard(QtGui.QFrame):
 		qp.drawText(95,280, "GAME OVER!")
 		self.controller.timer.stop() 
 
+	def winner(self, qp):
+		for i in range(len(self.enemyOccupancy)):
+			self.enemyOccupancy.pop()
+		for i in range(len(self.towerOccupancy)):
+			self.towerOccupancy.pop()
+		for i in range(len(self.nonOccupiable)):
+			self.nonOccupiable.pop()
+
+		qp.setPen(QtGui.QColor(0, 34, 3))
+		qp.setFont(QtGui.QFont('Decorative', 50))
+		qp.drawText(125,280, "WINNER!")
+		self.controller.timer.stop() 
+
 	def paintEvent(self, event):
 		qp = QtGui.QPainter()
 		qp.begin(self)
 		if globals.lives <= 0:
 			self.gameOver(qp)
+		elif self.isWinner and self.enemyOccupancy.__len__() == 0:
+			self.winner(qp)
 		else:
 			self.waveManager()
 			self.drawGrid(qp)
@@ -66,26 +88,38 @@ class gameBoard(QtGui.QFrame):
 			self.drawEnemies(qp)
 		qp.end()
 
-	def get_class(self, kls):
-		parts = kls.split('.')
-		module = ".".join(parts[:-1])
-		m = __import__( enemies )
-		for comp in parts[1:]:
-			m = getattr(m, comp)            
- 		return m
+	#timed loop for moving enemies and such.
+	def timedLoop(self):
+		self.moveEnemies()
 
  	#determines which waves are next, how many, health, etc. Reads from waves.json
 	def waveManager(self):
-		#print self.enemyOccupancy.__len__()
 		json_data=open('waves.json')
 		data = json.load(json_data)
-		id = data["wave_"+str(1)]["type"]
-		
-		if self.enemyOccupancy.__len__() == 0:
-			self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
-		else:
-			if self.enemyOccupancy[0].position_x >= data["wave_"+str(1)]["delay"]:
+
+		id = data["wave_"+str(self.currentWave)]["type"]
+
+		if self.isWaveSent and self.isWaveInProgress == False:
+			#sends the first enemy
+			if self.enemyOccupancy.__len__() == 0: 
 				self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+			#sends enemy after certain delay
+			elif self.enemyOccupancy.__len__() < data["wave_"+str(self.currentWave)]["units"] :
+				if self.enemyOccupancy[0].position_x >= data["wave_"+str(self.currentWave)]["delay"]:
+					self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+					if self.enemyOccupancy.__len__() == data["wave_"+str(self.currentWave)]["units"]:
+						self.isWaveSent = False
+						self.isWaveInProgress = True
+						try:
+							id = data["wave_"+str(self.currentWave + 1)]["type"]
+							self.currentWave += 1
+						except:
+							print "DONE", self.currentWave
+							self.isWinner = True
+		if self.isWaveInProgress and self.enemyOccupancy.__len__() == 0:
+			self.isWaveInProgress = False
+			self.isWaveSent = False
+
 
 		json_data.close()
 

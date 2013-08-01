@@ -32,7 +32,7 @@ class TowerDefence(QtGui.QMainWindow):
 	def timerEvent(self, event):
 		if event.timerId() == self.timer.timerId():
 			#moves every enemy in the list of enemies
-			self.mainBoard.moveEnemies()
+			self.mainBoard.timedLoop()
 			self.repaint()
 		else:
 			QtGui.QFrame.timerEvent(self, event)
