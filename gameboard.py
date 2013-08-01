@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys, time
+import sys, time, json
 from PyQt4 import QtCore, QtGui
 import copy
 
@@ -12,7 +12,7 @@ class gameBoard(QtGui.QFrame):
 
 	def __init__(self, parent):
 		QtGui.QFrame.__init__(self, parent)
-		
+		self.controller = parent
 		self.mouse_x = -1
 		self.mouse_y = -1
 
@@ -33,28 +33,61 @@ class gameBoard(QtGui.QFrame):
 		for i in globals.enemyPath:
 			self.nonOccupiable.append([i[0]*globals.blockSize, i[1]*globals.blockSize])
 
+	def pause(self):
+		print "paused"
+
+	def gameOver(self, qp):
+		for i in range(len(self.enemyOccupancy)):
+			self.enemyOccupancy.pop()
+		for i in range(len(self.towerOccupancy)):
+			self.towerOccupancy.pop()
+		for i in range(len(self.nonOccupiable)):
+			self.nonOccupiable.pop()
+
+		qp.setPen(QtGui.QColor(0, 34, 3))
+		qp.setFont(QtGui.QFont('Decorative', 50))
+		qp.drawText(95,280, "GAME OVER!")
+		self.controller.timer.stop() 
+
 	def paintEvent(self, event):
 		qp = QtGui.QPainter()
 		qp.begin(self)
-		self.waveManager()
-		self.drawGrid(qp)
-		self.drawPath(qp)
-		self.drawTowers(qp)
-		if self.isTowerSelected:
-			self.drawOutline(qp)
-		if self.isTowerClicked:
-			self.selectTower(qp, self.lastPlacedTower)
-		self.drawEnemies(qp)
+		if globals.lives <= 0:
+			self.gameOver(qp)
+		else:
+			self.waveManager()
+			self.drawGrid(qp)
+			self.drawPath(qp)
+			self.drawTowers(qp)
+			if self.isTowerSelected:
+				self.drawOutline(qp)
+			if self.isTowerClicked:
+				self.selectTower(qp, self.lastPlacedTower)
+			self.drawEnemies(qp)
 		qp.end()
 
+	def get_class(self, kls):
+		parts = kls.split('.')
+		module = ".".join(parts[:-1])
+		m = __import__( enemies )
+		for comp in parts[1:]:
+			m = getattr(m, comp)            
+ 		return m
+
+ 	#determines which waves are next, how many, health, etc. Reads from waves.json
 	def waveManager(self):
 		#print self.enemyOccupancy.__len__()
-
+		json_data=open('waves.json')
+		data = json.load(json_data)
+		id = data["wave_"+str(1)]["type"]
+		
 		if self.enemyOccupancy.__len__() == 0:
-			self.enemyOccupancy.insert(0, BlueCircle(copy.deepcopy(globals.enemyPath)))
+			self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
 		else:
-			if self.enemyOccupancy[0].position_x >= 10:
-				self.enemyOccupancy.insert(0, GreenCircle(copy.deepcopy(globals.enemyPath)))
+			if self.enemyOccupancy[0].position_x >= data["wave_"+str(1)]["delay"]:
+				self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+
+		json_data.close()
 
 	def drawGrid(self, qp):
 		pen = QtGui.QPen(QtGui.QColor(25, 180, 40, 55), 2, QtCore.Qt.SolidLine)
@@ -69,11 +102,14 @@ class gameBoard(QtGui.QFrame):
 				i.move()
 
 	def drawEnemies(self, qp):
-		qp.setPen(QtCore.Qt.NoPen)
+		#qp.setPen(QtCore.Qt.NoPen)
 		for i in self.enemyOccupancy:
 			qp.setBrush(i.color)
 			qp.drawEllipse(i.getCenter(), i.size, i.size)
-			self.enemyOccupancy[:] = [tup for tup in self.enemyOccupancy if tup.isFinished == False]
+			if i.isFinished:
+				globals.lives -= 1
+		self.enemyOccupancy[:] = [tup for tup in self.enemyOccupancy if tup.isFinished == False]
+			
 
 	def drawPath(self, qp):
 		qp.setPen(QtCore.Qt.NoPen)
@@ -89,9 +125,6 @@ class gameBoard(QtGui.QFrame):
 		for i in self.towerOccupancy:
 			qp.setBrush(i.color)
 			qp.drawRect(i.position_x, i.position_y, i.size*globals.blockSize, i.size*globals.blockSize)
-
-	def pause(self):
-		print "paused"
 
 	#returns modified mouse co-ordinates to account for board dimensions.
 	def get_x(self):

@@ -6,7 +6,7 @@ boardHeight = 520
 
 money = 1000
 score = 0
-lives = 20
+lives = 10
 
 currentWave = 0
 

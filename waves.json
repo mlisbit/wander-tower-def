@@ -1,17 +1,15 @@
 {
 	"wave_1" : {
-		"type" : "blueCircle",
-		"delay" : 10,
+		"type" : "BlueCircle",
+		"delay" : 40,
 		"HP" : 100,
-		"PointsPer" : 200,
-		"spread": 10
+		"PointsPer" : 200
 	},
 
 	"wave_2" : {
-		"type" : "blueCircle",
+		"type" : "GreenCircle",
 		"delay" : 10,
 		"HP" : 100,
-		"PointsPer" : 200,
-		"spread": 10
+		"PointsPer" : 200
 	}
 }

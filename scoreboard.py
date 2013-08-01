@@ -52,7 +52,7 @@ class scoreBoard(QtGui.QFrame):
 
 		self.pauseButton()
 
-		btn1.clicked.connect(self.towerOne)            
+		btn1.clicked.connect(self.towerOne)
 		btn2.clicked.connect(self.towerTwo)
 		btn3.clicked.connect(self.towerThree)
 		btn4.clicked.connect(self.towerFour)
@@ -80,6 +80,8 @@ class scoreBoard(QtGui.QFrame):
 		qp.setPen(QtGui.QColor(0, 34, 3))
 		qp.setFont(QtGui.QFont('Decorative', 10))
 		qp.drawText(15,20, "MONEY: "+ str(globals.money))
+		qp.drawText(15,35, "LIVES: "+ str(globals.lives))
+		qp.drawText(15,50, "SCORE: "+ str(globals.score))
 
 	def towerSelected(self):
 		self.mainBoard.isTowerSelected = True
