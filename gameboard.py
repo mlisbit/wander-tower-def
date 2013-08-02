@@ -21,8 +21,10 @@ class gameBoard(QtGui.QFrame):
 		self.isWaveSent = False
 		self.isWaveInProgress = False
 
+		self.graceUnits = 4
 
-		self.isWinner = False
+
+		self.isLastWave = False
 		self.isMouseIn = False
 		self.isTowerSelected = False
 		self.isTowerClicked = False
@@ -74,13 +76,14 @@ class gameBoard(QtGui.QFrame):
 		qp.begin(self)
 		if globals.lives <= 0:
 			self.gameOver(qp)
-		elif self.isWinner and self.enemyOccupancy.__len__() == 0:
+		elif self.isLastWave and self.enemyOccupancy.__len__() == 0:
 			self.winner(qp)
 		else:
 			self.waveManager()
 			self.drawGrid(qp)
 			self.drawPath(qp)
 			self.drawTowers(qp)
+			self.drawProjectiles(qp)
 			if self.isTowerSelected:
 				self.drawOutline(qp)
 			if self.isTowerClicked:
@@ -91,6 +94,7 @@ class gameBoard(QtGui.QFrame):
 	#timed loop for moving enemies and such.
 	def timedLoop(self):
 		self.moveEnemies()
+		self.determineProjectiles()
 
  	#determines which waves are next, how many, health, etc. Reads from waves.json
 	def waveManager(self):
@@ -104,7 +108,7 @@ class gameBoard(QtGui.QFrame):
 			if self.enemyOccupancy.__len__() == 0: 
 				self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
 			#sends enemy after certain delay
-			elif self.enemyOccupancy.__len__() < data["wave_"+str(self.currentWave)]["units"] :
+			elif self.enemyOccupancy.__len__() < data["wave_"+str(self.currentWave)]["units"] + self.graceUnits:
 				if self.enemyOccupancy[0].position_x >= data["wave_"+str(self.currentWave)]["delay"]:
 					self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
 					if self.enemyOccupancy.__len__() == data["wave_"+str(self.currentWave)]["units"]:
@@ -115,7 +119,7 @@ class gameBoard(QtGui.QFrame):
 							self.currentWave += 1
 						except:
 							print "DONE", self.currentWave
-							self.isWinner = True
+							self.isLastWave = True
 		if self.isWaveInProgress and self.enemyOccupancy.__len__() == 0:
 			self.isWaveInProgress = False
 			self.isWaveSent = False
@@ -259,3 +263,27 @@ class gameBoard(QtGui.QFrame):
 					self.isTowerClicked = False
 		#print self.nonOccupiable
 		self.repaint()
+	'''
+	def drawProjectiles(self, qp):
+		pen = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
+		qp.setPen(pen)
+		for i in self.towerOccupancy:
+			for k in self.enemyOccupancy:
+				if i.inRange(k):
+					qp.drawLine(i.getCenter(), k.getCenter())
+	'''
+	def drawProjectiles(self, qp):
+		pen = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
+		qp.setPen(pen)
+		for i in self.towerOccupancy:
+			#determin targets should return an array of qpoints
+			for k in i.determineTarget(self.enemyOccupancy):
+				qp.drawLine(i.getCenter(), k)
+
+	def determineProjectiles(self):
+		print "======================="
+		for i in self.towerOccupancy:
+			i.determineTarget(self.enemyOccupancy)
+
+
+			

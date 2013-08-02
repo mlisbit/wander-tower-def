@@ -83,7 +83,7 @@ class scoreBoard(QtGui.QFrame):
 		qp.drawText(15,20, "MONEY: "+ str(globals.money))
 		qp.drawText(15,35, "LIVES: "+ str(globals.lives))
 		qp.drawText(15,50, "SCORE: "+ str(globals.score))
-		qp.drawText(15,65, "CURRENT WAVE: "+ str(self.mainBoard.currentWave)+" / 3")
+		qp.drawText(15,65, "NEXT WAVE: "+ str(self.mainBoard.currentWave)+" / 3")
 
 	def towerSelected(self):
 		self.mainBoard.isTowerSelected = True

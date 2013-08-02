@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import sys, time
 from PyQt4 import QtCore, QtGui
+from math import sqrt
+from enemies import *
 
 #tower objects 
 class Tower(object):
@@ -57,7 +59,7 @@ class Tower(object):
 
 	def getColor(self):
 		return self.color
-		
+
 	def getCenter(self):
 		#print self.size
 		return QtCore.QPoint(self.position_x + (self.size*20/2), self.position_y + self.size*20/2)
@@ -70,3 +72,25 @@ class Tower(object):
 
 	def getLevel(self):
 		return self.level
+
+	def inRange(self, enemy):
+		return int(sqrt( pow((self.getCenter().x() - enemy.getCenter().x()), 2)+ pow((self.getCenter().y() - enemy.getCenter().y()), 2) )) <= self.shotrange
+
+	def determineTarget(self, targets):
+		print "hi"
+		print targets
+		new_targets = []
+		#get the target with largest distance
+		for i in targets:
+			if self.inRange(i):
+				print i.getTotalDistance()
+				new_targets.append(i.getCenter())
+		try:
+			new_targets.pop()
+		except:
+			pass
+		return new_targets
+
+
+		
+

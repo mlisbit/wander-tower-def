@@ -14,6 +14,7 @@ class Enemy(object):
 
 		self.position_x = self.enemyPath[0][0]*20
 		self.position_y = self.enemyPath[0][1]*20
+		self.totalDistance = 0
 
 		self.current_block = [self.enemyPath[0][0],self.enemyPath[0][1]]
 		self.direction = "RIGHT"
@@ -50,6 +51,11 @@ class Enemy(object):
 			self.position_x -= self.speed
 		elif self.direction == "UP":
 			self.position_y -= self.speed
+
+		self.totalDistance += self.speed
+
+	def getTotalDistance(self):
+		return self.totalDistance
 
 	def getCurrentBlock(self):
 		if self.direction == "UP":
