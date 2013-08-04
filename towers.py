@@ -6,56 +6,12 @@ from enemies import *
 
 #tower objects 
 class Tower(object):
-	def __init__(self, x=-100, y=-100, t="ONE"): 
-		self.position_x = x
-		self.position_y = y
+	def __init__(self): 
+		self.position_x = -100
+		self.position_y = -100
 		self.occupied = []
 		self.retailvalue = 1000
 		self.level = 1
-
-
-		if t=="ONE":
-			self.type1()
-		elif t=="TWO":
-			self.type2()
-		elif t=="THREE":
-			self.type3()
-		elif t=="FOUR":
-			self.type4()
-
-	def type1(self):
-		self.color = QtGui.QColor(255, 80, 100, 255)
-		self.name = "mini helper"
-		self.size = 1
-		self.shotrange = 120
-		self.cost = 200
-		self.damage = 100
-		self.rof = 5
-
-	def type2(self):
-		self.color = QtGui.QColor(0, 200, 100, 255)
-		self.name = "gargatuan"
-		self.size = 2
-		self.shotrange = 200
-		self.cost = 200
-		self.damage = 200
-		self.rof = 1
-
-	def type3(self):
-		self.color = QtGui.QColor(25, 180, 10, 255)
-		self.size = 2
-		self.shotrange = 160
-		self.cost = 200
-		self.damage = 200
-		self.rof = 1
-
-	def type4(self):
-		self.color = QtGui.QColor(55, 80, 100, 255)
-		self.size = 2
-		self.shotrange = 100
-		self.cost = 200
-		self.damage = 200
-		self.rof = 1
 
 	def getColor(self):
 		return self.color
@@ -91,6 +47,45 @@ class Tower(object):
 			pass
 		return new_targets
 
+class PinkTower(Tower):
+	def __init__(self):
+		super(PinkTower, self).__init__()
+		self.color = QtGui.QColor(255, 80, 100, 255)
+		self.name = "mini helper"
+		self.size = 1
+		self.shotrange = 120
+		self.cost = 200
+		self.damage = 100
+		self.rof = 5
 
-		
 
+class GreenTower(Tower):
+	def __init__(self):
+		super(GreenTower, self).__init__()
+		self.color = QtGui.QColor(0, 200, 100, 255)
+		self.name = "gargatuan"
+		self.size = 2
+		self.shotrange = 200
+		self.cost = 200
+		self.damage = 200
+		self.rof = 1
+
+class PurpleTower(Tower):
+	def __init__(self):
+		super(PurpleTower, self).__init__()
+		self.color = QtGui.QColor(25, 180, 10, 255)
+		self.size = 2
+		self.shotrange = 160
+		self.cost = 200
+		self.damage = 200
+		self.rof = 1
+
+class BlueTower(Tower):
+	def __init__(self):
+		super(BlueTower, self).__init__()
+		self.color = QtGui.QColor(55, 80, 100, 255)
+		self.size = 2
+		self.shotrange = 100
+		self.cost = 200
+		self.damage = 200
+		self.rof = 1

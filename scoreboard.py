@@ -91,19 +91,19 @@ class scoreBoard(QtGui.QFrame):
 		
 	def towerOne(self):
 		self.towerSelected()
-		self.mainBoard.lastPlacedTower = Tower(None, None, "ONE")
+		self.mainBoard.lastPlacedTower = PinkTower()
 
 	def towerTwo(self):
 		self.towerSelected()
-		self.mainBoard.lastPlacedTower = Tower(None, None, "TWO")
+		self.mainBoard.lastPlacedTower = GreenTower()
 
 	def towerThree(self):
 		self.towerSelected()
-		self.mainBoard.lastPlacedTower = Tower(None, None, "THREE")
+		self.mainBoard.lastPlacedTower = PurpleTower()
 
 	def towerFour(self):
 		self.towerSelected()
-		self.mainBoard.lastPlacedTower = Tower(None, None, "FOUR")
+		self.mainBoard.lastPlacedTower = BlueTower()
 
 	def pauseButton(self):
 		self.pauseButton = QtGui.QPushButton("Pause", self)
