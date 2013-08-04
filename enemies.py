@@ -11,6 +11,7 @@ class Enemy(object):
 		self.size = 8
 		self.grace_offset = self.size + 2
 		self.isFinished = False
+		self.isDead = False
 
 		self.position_x = self.enemyPath[0][0]*20
 		self.position_y = self.enemyPath[0][1]*20
@@ -53,6 +54,13 @@ class Enemy(object):
 			self.position_y -= self.speed
 
 		self.totalDistance += self.speed
+
+		self.checkHP()
+
+	def checkHP(self):
+		if self.health <= 0:
+			print "DEAD"
+			self.isDead = True 
 
 	def getTotalDistance(self):
 		return self.totalDistance

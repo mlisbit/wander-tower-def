@@ -5,6 +5,8 @@ import copy
 
 from towers import *
 from enemies import *
+from projectiles import *
+
 import globals
 
 class gameBoard(QtGui.QFrame):
@@ -31,6 +33,7 @@ class gameBoard(QtGui.QFrame):
 
 		self.lastPlacedTower = Tower()
 
+		self.projectileOccupancy = []
 		self.towerOccupancy = []
 		self.enemyOccupancy = []
 		self.nonOccupiable = []
@@ -94,7 +97,7 @@ class gameBoard(QtGui.QFrame):
 	#timed loop for moving enemies and such.
 	def timedLoop(self):
 		self.moveEnemies()
-		self.determineProjectiles()
+		self.dealDamage()
 
  	#determines which waves are next, how many, health, etc. Reads from waves.json
 	def waveManager(self):
@@ -102,6 +105,8 @@ class gameBoard(QtGui.QFrame):
 		data = json.load(json_data)
 
 		id = data["wave_"+str(self.currentWave)]["type"]
+		NoU = data["wave_"+str(self.currentWave)]["units"]
+		NoU_sent = 0
 
 		if self.isWaveSent and self.isWaveInProgress == False:
 			#sends the first enemy
@@ -147,6 +152,7 @@ class gameBoard(QtGui.QFrame):
 			if i.isFinished:
 				globals.lives -= 1
 		self.enemyOccupancy[:] = [tup for tup in self.enemyOccupancy if tup.isFinished == False]
+		self.enemyOccupancy[:] = [tup for tup in self.enemyOccupancy if tup.isDead == False]
 			
 
 	def drawPath(self, qp):
@@ -272,18 +278,30 @@ class gameBoard(QtGui.QFrame):
 				if i.inRange(k):
 					qp.drawLine(i.getCenter(), k.getCenter())
 	'''
+
+	def targettedEnemies(self):
+		pass
+
+	def dealDamage(self):
+		for i in self.projectileOccupancy:
+			i.dealDamage()
+			print "damage dealt!", i.destination.health
+
 	def drawProjectiles(self, qp):
 		pen = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
 		qp.setPen(pen)
+		self.projectileOccupancy = []
 		for i in self.towerOccupancy:
 			#determin targets should return an array of qpoints
 			for k in i.determineTarget(self.enemyOccupancy):
-				qp.drawLine(i.getCenter(), k)
+				qp.drawLine(i.getCenter(), k.getCenter())
+				self.projectileOccupancy.append(Projectile(i,k))
 
+	'''
 	def determineProjectiles(self):
 		print "======================="
 		for i in self.towerOccupancy:
 			i.determineTarget(self.enemyOccupancy)
-
+		'''
 
 			

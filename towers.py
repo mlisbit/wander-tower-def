@@ -32,21 +32,7 @@ class Tower(object):
 	def inRange(self, enemy):
 		return int(sqrt( pow((self.getCenter().x() - enemy.getCenter().x()), 2)+ pow((self.getCenter().y() - enemy.getCenter().y()), 2) )) <= self.shotrange
 
-	def determineTarget(self, targets):
-		print "hi"
-		print targets
-		new_targets = []
-		#get the target with largest distance
-		for i in targets:
-			if self.inRange(i):
-				print i.getTotalDistance()
-				new_targets.append(i.getCenter())
-		try:
-			new_targets.pop()
-		except:
-			pass
-		return new_targets
-
+	
 class PinkTower(Tower):
 	def __init__(self):
 		super(PinkTower, self).__init__()
@@ -55,8 +41,18 @@ class PinkTower(Tower):
 		self.size = 1
 		self.shotrange = 120
 		self.cost = 200
-		self.damage = 100
+		self.damage = 1
 		self.rof = 5
+
+	def determineTarget(self, targets):
+		new_targets = []
+		for i in targets:
+			if self.inRange(i):
+				new_targets.append(i)
+		try:
+			return [new_targets[len(new_targets)-1]]
+		except:
+			return []
 
 
 class GreenTower(Tower):
@@ -70,6 +66,16 @@ class GreenTower(Tower):
 		self.damage = 200
 		self.rof = 1
 
+	def determineTarget(self, targets):
+		new_targets = []
+		for i in targets:
+			if self.inRange(i):
+				new_targets.append(i)
+		try:
+			return [new_targets[len(new_targets)-1]]
+		except:
+			return []
+
 class PurpleTower(Tower):
 	def __init__(self):
 		super(PurpleTower, self).__init__()
@@ -80,6 +86,16 @@ class PurpleTower(Tower):
 		self.damage = 200
 		self.rof = 1
 
+	def determineTarget(self, targets):
+		new_targets = []
+		for i in targets:
+			if self.inRange(i):
+				new_targets.append(i)
+		try:
+			return [new_targets[len(new_targets)-1]]
+		except:
+			return []
+
 class BlueTower(Tower):
 	def __init__(self):
 		super(BlueTower, self).__init__()
@@ -89,3 +105,13 @@ class BlueTower(Tower):
 		self.cost = 200
 		self.damage = 200
 		self.rof = 1
+
+	def determineTarget(self, targets):
+		new_targets = []
+		for i in targets:
+			if self.inRange(i):
+				new_targets.append(i)
+		try:
+			return [new_targets[len(new_targets)-1]]
+		except:
+			return []

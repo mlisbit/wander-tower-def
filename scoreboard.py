@@ -6,18 +6,6 @@ from towers import *
 import globals
 
 class scoreBoard(QtGui.QFrame):
-	'''
-	THINGS TO ADD. MAYBE.
-	creeps
-	gold
-	lives
-	leaks
-	kills
-	LEVEL
-	types of enemies
-	fast forward
-	pause/start
-	'''
 	def __init__(self, parent):
 		QtGui.QFrame.__init__(self, parent)
 		self.mainBoard = parent.mainBoard
