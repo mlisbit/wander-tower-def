@@ -25,6 +25,7 @@ class gameBoard(QtGui.QFrame):
 
 		self.graceUnits = 4
 
+		self.NoU_sent = 0
 
 		self.isLastWave = False
 		self.isMouseIn = False
@@ -106,25 +107,34 @@ class gameBoard(QtGui.QFrame):
 
 		id = data["wave_"+str(self.currentWave)]["type"]
 		NoU = data["wave_"+str(self.currentWave)]["units"]
-		NoU_sent = 0
+		print "need to send", NoU, "units. sent", self.NoU_sent
+		
 
 		if self.isWaveSent and self.isWaveInProgress == False:
 			#sends the first enemy
-			if self.enemyOccupancy.__len__() == 0: 
+
+			if self.NoU_sent == 0 or len(self.enemyOccupancy) == 0: 
 				self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+				self.NoU_sent += 1
 			#sends enemy after certain delay
-			elif self.enemyOccupancy.__len__() < data["wave_"+str(self.currentWave)]["units"] + self.graceUnits:
-				if self.enemyOccupancy[0].position_x >= data["wave_"+str(self.currentWave)]["delay"]:
-					self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
-					if self.enemyOccupancy.__len__() == data["wave_"+str(self.currentWave)]["units"]:
-						self.isWaveSent = False
-						self.isWaveInProgress = True
-						try:
-							id = data["wave_"+str(self.currentWave + 1)]["type"]
-							self.currentWave += 1
-						except:
-							print "DONE", self.currentWave
-							self.isLastWave = True
+			elif self.NoU_sent < data["wave_"+str(self.currentWave)]["units"] + self.graceUnits:
+				if not len(self.enemyOccupancy) == 0:
+					if self.enemyOccupancy[0].position_x >= data["wave_"+str(self.currentWave)]["delay"]:
+						self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+						self.NoU_sent += 1
+						print self.NoU_sent
+				#ending of wave
+				if self.NoU_sent == data["wave_"+str(self.currentWave)]["units"]:
+					self.isWaveSent = False
+					self.isWaveInProgress = True
+					try:
+						id = data["wave_"+str(self.currentWave + 1)]["type"]
+						self.currentWave += 1
+						self.NoU_sent = 0
+					except:
+						print "DONE", self.currentWave
+						self.isLastWave = True
+						self.NoU_sent = 0
 		if self.isWaveInProgress and self.enemyOccupancy.__len__() == 0:
 			self.isWaveInProgress = False
 			self.isWaveSent = False
@@ -285,7 +295,7 @@ class gameBoard(QtGui.QFrame):
 	def dealDamage(self):
 		for i in self.projectileOccupancy:
 			i.dealDamage()
-			print "damage dealt!", i.destination.health
+			#print "damage dealt!", i.destination.health
 
 	def drawProjectiles(self, qp):
 		pen = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
