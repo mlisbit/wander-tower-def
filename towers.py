@@ -63,7 +63,7 @@ class GreenTower(Tower):
 		self.size = 2
 		self.shotrange = 200
 		self.cost = 200
-		self.damage = 200
+		self.damage = 2
 		self.rof = 1
 
 	def determineTarget(self, targets):
@@ -72,6 +72,7 @@ class GreenTower(Tower):
 			if self.inRange(i):
 				new_targets.append(i)
 		try:
+			return [new_targets[len(new_targets)-1], new_targets[len(new_targets)-2]]
 			return [new_targets[len(new_targets)-1]]
 		except:
 			return []
@@ -83,7 +84,7 @@ class PurpleTower(Tower):
 		self.size = 2
 		self.shotrange = 160
 		self.cost = 200
-		self.damage = 200
+		self.damage = 2
 		self.rof = 1
 
 	def determineTarget(self, targets):
@@ -103,7 +104,7 @@ class BlueTower(Tower):
 		self.size = 2
 		self.shotrange = 100
 		self.cost = 200
-		self.damage = 200
+		self.damage = 2
 		self.rof = 1
 
 	def determineTarget(self, targets):

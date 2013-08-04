@@ -21,3 +21,7 @@ class Projectile(object):
 	def dealDamage(self):
 		self.destination.health -= self.origin.damage
 
+
+class Rocket(Projectile):
+	def __init__(self):
+		super(Rocket, self).__init__()

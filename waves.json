@@ -10,7 +10,7 @@
 	"wave_2" : {
 		"type" : "GreenCircle",
 		"delay" : 10,
-		"HP" : 100,
+		"HP" : 200,
 		"PointsPer" : 200,
 		"units": 10
 	},
@@ -18,7 +18,7 @@
 	"wave_3" : {
 		"type" : "GreenCircle",
 		"delay" : 10,
-		"HP" : 100,
+		"HP" : 700,
 		"PointsPer" : 200,
 		"units": 10
 	}

@@ -95,24 +95,27 @@ class Enemy(object):
 	def getCenter(self):
 		return QtCore.QPoint(self.position_x+10, self.position_y+10)
 
+	def getHPcoord(self):
+		return QtCore.QPoint(self.position_x-10, self.position_y)
+
 class BlueCircle(Enemy):
-	def __init__(self, ep=None):
+	def __init__(self, ep=None, HP=100):
 		super(BlueCircle, self).__init__(ep)
-		self.health = 100
+		self.health = HP
 		self.speed = 2
 		self.color = QtGui.QColor(25, 80, 100, 255)
 
 class GreenCircle(Enemy):
-	def __init__(self, ep=None):
+	def __init__(self, ep=None, HP=100):
 		super(GreenCircle, self).__init__(ep)
-		self.health = 100
+		self.health = HP
 		self.speed = 2
 		self.color = QtGui.QColor(25, 180, 10, 255)
 
 class RedCircle(Enemy):
-	def __init__(self, ep=None):
+	def __init__(self, ep=None, HP=100):
 		super(RedCircle, self).__init__(ep)
-		self.health = 100
+		self.health = HP
 		self.speed = 2
 		self.color = QtGui.QColor(25, 180, 10, 255)
 		

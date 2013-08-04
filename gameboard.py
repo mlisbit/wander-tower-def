@@ -93,6 +93,7 @@ class gameBoard(QtGui.QFrame):
 			if self.isTowerClicked:
 				self.selectTower(qp, self.lastPlacedTower)
 			self.drawEnemies(qp)
+			self.drawEnemyHP(qp)
 		qp.end()
 
 	#timed loop for moving enemies and such.
@@ -107,20 +108,21 @@ class gameBoard(QtGui.QFrame):
 
 		id = data["wave_"+str(self.currentWave)]["type"]
 		NoU = data["wave_"+str(self.currentWave)]["units"]
-		print "need to send", NoU, "units. sent", self.NoU_sent
+		hp = int(data["wave_"+str(self.currentWave)]["HP"])
+		#print "need to send", NoU, "units. sent", self.NoU_sent
 		
 
 		if self.isWaveSent and self.isWaveInProgress == False:
 			#sends the first enemy
 
 			if self.NoU_sent == 0 or len(self.enemyOccupancy) == 0: 
-				self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+				self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath), hp))
 				self.NoU_sent += 1
 			#sends enemy after certain delay
 			elif self.NoU_sent < data["wave_"+str(self.currentWave)]["units"] + self.graceUnits:
 				if not len(self.enemyOccupancy) == 0:
 					if self.enemyOccupancy[0].position_x >= data["wave_"+str(self.currentWave)]["delay"]:
-						self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath)))
+						self.enemyOccupancy.insert(0, getattr(sys.modules[__name__], id)(copy.deepcopy(globals.enemyPath), hp))
 						self.NoU_sent += 1
 						print self.NoU_sent
 				#ending of wave
@@ -132,7 +134,7 @@ class gameBoard(QtGui.QFrame):
 						self.currentWave += 1
 						self.NoU_sent = 0
 					except:
-						print "DONE", self.currentWave
+						#print "DONE", self.currentWave
 						self.isLastWave = True
 						self.NoU_sent = 0
 		if self.isWaveInProgress and self.enemyOccupancy.__len__() == 0:
@@ -307,6 +309,11 @@ class gameBoard(QtGui.QFrame):
 				qp.drawLine(i.getCenter(), k.getCenter())
 				self.projectileOccupancy.append(Projectile(i,k))
 
+	def drawEnemyHP(self,qp):
+		qp.setPen(QtGui.QColor(0, 34, 3))
+		qp.setFont(QtGui.QFont('Decorative', 6))
+		for i in self.enemyOccupancy:
+			qp.drawText(i.getHPcoord().x(),i.getHPcoord().y(), str(i.health))
 	'''
 	def determineProjectiles(self):
 		print "======================="
